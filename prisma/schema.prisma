@@ -1,0 +1,95 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          String       @id @default(uuid())
+  name        String?
+  email       String       @unique
+  password    String
+  role        String       @default("USER") // USER, ADMIN
+  avatar      String?      @db.LongText // Local file URL or base64
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  incomes     Income[]
+  expenses    Expense[]
+  budgets     Budget[]
+  savingGoals SavingGoal[]
+  categories  Category[]
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  type      String    // INCOME or EXPENSE
+  icon      String?   // Lucide icon name
+  color     String?   // CSS/Tailwind color class or hex
+  createdAt DateTime  @default(now())
+
+  // Custom User Categories
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  incomes   Income[]
+  expenses  Expense[]
+  budgets   Budget[]
+
+  @@unique([name, type, userId])
+}
+
+model Income {
+  id          String   @id @default(uuid())
+  amount      Float
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  date        DateTime
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Expense {
+  id           String   @id @default(uuid())
+  amount       Float
+  categoryId   String
+  category     Category @relation(fields: [categoryId], references: [id])
+  date         DateTime
+  description  String?
+  receiptImage String?  @db.LongText // Local URL path or base64 image data
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
+model Budget {
+  id         String   @id @default(uuid())
+  limit      Float
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  month      DateTime // Always seed as the 1st of the month (e.g. 2026-07-01 00:00:00)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, categoryId, month])
+}
+
+model SavingGoal {
+  id            String    @id @default(uuid())
+  name          String
+  targetAmount  Float
+  currentAmount Float     @default(0)
+  deadline      DateTime?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+}
