@@ -28,7 +28,7 @@ ApexFinance is a production-ready, mobile-first FinTech Expense Tracker applicat
 ## 🛠️ Tech Stack
 
 * **Framework**: Next.js 15 (App Router, Server Actions/Route Handlers)
-* **Language**: TypeScript
+* **Language**: TypeScript 2
 * **Styling**: Tailwind CSS v4
 * **ORM**: Prisma ORM (v5.22.0)
 * **Database**: MySQL (MariaDB compatible)
